@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -8,9 +9,27 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading, hasRole } = useAuth();
+  const [roleChecking, setRoleChecking] = useState(true);
+  const [hasRequiredRole, setHasRequiredRole] = useState(false);
 
-  if (loading) {
+  useEffect(() => {
+    const checkRole = async () => {
+      if (user && requiredRole) {
+        const hasAccess = await hasRole(requiredRole);
+        setHasRequiredRole(hasAccess);
+      } else if (user) {
+        setHasRequiredRole(true);
+      }
+      setRoleChecking(false);
+    };
+    
+    if (!loading) {
+      checkRole();
+    }
+  }, [user, loading, requiredRole, hasRole]);
+
+  if (loading || roleChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-full max-w-md space-y-4">
@@ -22,6 +41,10 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (requiredRole && !hasRequiredRole) {
     return <Navigate to="/auth" replace />;
   }
 
