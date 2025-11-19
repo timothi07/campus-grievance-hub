@@ -27,15 +27,28 @@ type SignUpForm = z.infer<typeof signUpSchema>;
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user, signIn, signUp } = useAuth();
+  const { user, signIn, signUp, hasRole } = useAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      navigate("/student", { replace: true });
-    }
-  }, [user, navigate]);
+    const redirectUser = async () => {
+      if (user) {
+        const isAdmin = await hasRole("admin");
+        const isStaff = await hasRole("staff");
+        
+        if (isAdmin) {
+          navigate("/admin", { replace: true });
+        } else if (isStaff) {
+          navigate("/staff", { replace: true });
+        } else {
+          navigate("/student", { replace: true });
+        }
+      }
+    };
+    
+    redirectUser();
+  }, [user, navigate, hasRole]);
 
   const signInForm = useForm<SignInForm>({
     resolver: zodResolver(signInSchema),
