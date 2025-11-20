@@ -1,9 +1,14 @@
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Users, Building2 } from "lucide-react";
+import AllComplaints from "@/components/admin/AllComplaints";
 
 export default function AdminDashboard() {
   const { user, signOut } = useAuth();
+  const [activeTab, setActiveTab] = useState("complaints");
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -22,37 +27,50 @@ export default function AdminDashboard() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 animate-slide-up">
-          <Card className="shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-1">
-            <CardHeader>
-              <CardTitle className="text-primary">User Management</CardTitle>
-              <CardDescription>Manage users and roles</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Coming soon...</p>
-            </CardContent>
-          </Card>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsTrigger value="complaints">
+              <FileText className="mr-2 h-4 w-4" />
+              All Complaints
+            </TabsTrigger>
+            <TabsTrigger value="users">
+              <Users className="mr-2 h-4 w-4" />
+              User Management
+            </TabsTrigger>
+            <TabsTrigger value="departments">
+              <Building2 className="mr-2 h-4 w-4" />
+              Departments
+            </TabsTrigger>
+          </TabsList>
 
-          <Card className="shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-1">
-            <CardHeader>
-              <CardTitle className="text-secondary">Department Management</CardTitle>
-              <CardDescription>Manage departments and categories</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Coming soon...</p>
-            </CardContent>
-          </Card>
+          <TabsContent value="complaints" className="animate-slide-up">
+            <AllComplaints />
+          </TabsContent>
 
-          <Card className="shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-1">
-            <CardHeader>
-              <CardTitle className="text-accent">All Complaints</CardTitle>
-              <CardDescription>View and manage all complaints</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Coming soon...</p>
-            </CardContent>
-          </Card>
-        </div>
+          <TabsContent value="users" className="animate-slide-up">
+            <Card className="shadow-soft">
+              <CardHeader>
+                <CardTitle className="text-primary">User Management</CardTitle>
+                <CardDescription>Manage users and roles</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="departments" className="animate-slide-up">
+            <Card className="shadow-soft">
+              <CardHeader>
+                <CardTitle className="text-secondary">Department Management</CardTitle>
+                <CardDescription>Manage departments and categories</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
