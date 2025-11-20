@@ -15,20 +15,28 @@ const Index = () => {
   }, [user, loading, navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center space-y-6 max-w-md px-4">
-        <div className="flex justify-center mb-6">
-          <div className="p-4 bg-primary/10 rounded-full">
-            <FileText className="h-12 w-12 text-primary" />
+    <div className="flex min-h-screen items-center justify-center gradient-hero">
+      <div className="text-center space-y-8 max-w-2xl px-4 animate-fade-in">
+        <div className="flex justify-center mb-8">
+          <div className="p-6 gradient-primary rounded-3xl shadow-glow animate-scale-in">
+            <FileText className="h-16 w-16 text-primary-foreground" />
           </div>
         </div>
-        <h1 className="text-4xl font-bold text-foreground">Student Complaint System</h1>
-        <p className="text-xl text-muted-foreground">
-          Submit and track your complaints efficiently
+        <h1 className="text-5xl md:text-6xl font-bold text-foreground tracking-tight">
+          Student Complaint System
+        </h1>
+        <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
+          Submit and track your complaints efficiently with our modern platform
         </p>
-        <Button size="lg" onClick={() => navigate("/auth")} className="mt-4">
-          Get Started
-        </Button>
+        <div className="pt-4">
+          <Button 
+            size="lg" 
+            onClick={() => navigate("/auth")} 
+            className="text-lg px-8 py-6 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105"
+          >
+            Get Started
+          </Button>
+        </div>
       </div>
     </div>
   );
