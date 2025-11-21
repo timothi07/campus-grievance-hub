@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Paperclip, MessageSquare } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Paperclip, MessageSquare, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -22,6 +24,8 @@ const ComplaintDetail = ({ complaintId, onBack }: ComplaintDetailProps) => {
   const [isStaff, setIsStaff] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [comment, setComment] = useState("");
+  const [newStatus, setNewStatus] = useState("");
+  const [statusNote, setStatusNote] = useState("");
 
   useEffect(() => {
     const checkRoles = async () => {
@@ -116,6 +120,58 @@ const ComplaintDetail = ({ complaintId, onBack }: ComplaintDetailProps) => {
     addCommentMutation.mutate(comment);
   };
 
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ status, note }: { status: string; note: string }) => {
+      if (!user) throw new Error("User not authenticated");
+      
+      // Update complaint status
+      const { error: updateError } = await supabase
+        .from("complaints")
+        .update({ 
+          status,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", complaintId);
+      
+      if (updateError) throw updateError;
+
+      // Add status log entry
+      const { error: logError } = await supabase
+        .from("complaint_status_log")
+        .insert({
+          complaint_id: complaintId,
+          status,
+          note: note.trim() || null,
+          updated_by: user.id,
+        });
+      
+      if (logError) throw logError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["complaint", complaintId] });
+      queryClient.invalidateQueries({ queryKey: ["complaint-status-log", complaintId] });
+      setNewStatus("");
+      setStatusNote("");
+      toast({
+        title: "Status updated",
+        description: "The complaint status has been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update status. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Error updating status:", error);
+    },
+  });
+
+  const handleUpdateStatus = () => {
+    if (!newStatus) return;
+    updateStatusMutation.mutate({ status: newStatus, note: statusNote });
+  };
+
   const getStatusBadge = (status: string) => {
     const statusColors = {
       pending: "bg-status-pending text-status-pending-foreground",
@@ -198,6 +254,49 @@ const ComplaintDetail = ({ complaintId, onBack }: ComplaintDetailProps) => {
           </div>
         </CardContent>
       </Card>
+
+      {(isStaff || isAdmin) && (
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-primary" />
+              Update Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="status">New Status</Label>
+              <Select value={newStatus} onValueChange={setNewStatus}>
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Select new status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="in_progress">In Progress</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="status-note">Note (Optional)</Label>
+              <Textarea
+                id="status-note"
+                placeholder="Add a note about this status change..."
+                value={statusNote}
+                onChange={(e) => setStatusNote(e.target.value)}
+                className="min-h-[80px]"
+              />
+            </div>
+            <Button 
+              onClick={handleUpdateStatus}
+              disabled={!newStatus || updateStatusMutation.isPending}
+              className="w-full"
+            >
+              {updateStatusMutation.isPending ? "Updating..." : "Update Status"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
