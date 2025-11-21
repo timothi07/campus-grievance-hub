@@ -1,11 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Paperclip } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, Paperclip, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
 
 interface ComplaintDetailProps {
   complaintId: string;
@@ -13,6 +17,22 @@ interface ComplaintDetailProps {
 }
 
 const ComplaintDetail = ({ complaintId, onBack }: ComplaintDetailProps) => {
+  const { user, hasRole } = useAuth();
+  const queryClient = useQueryClient();
+  const [isStaff, setIsStaff] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [comment, setComment] = useState("");
+
+  useEffect(() => {
+    const checkRoles = async () => {
+      const staffRole = await hasRole("staff");
+      const adminRole = await hasRole("admin");
+      setIsStaff(staffRole);
+      setIsAdmin(adminRole);
+    };
+    checkRoles();
+  }, [hasRole]);
+
   const { data: complaint, isLoading } = useQuery({
     queryKey: ["complaint", complaintId],
     queryFn: async () => {
@@ -45,6 +65,56 @@ const ComplaintDetail = ({ complaintId, onBack }: ComplaintDetailProps) => {
       return data;
     },
   });
+
+  const { data: comments } = useQuery({
+    queryKey: ["complaint-comments", complaintId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("comments")
+        .select("*")
+        .eq("complaint_id", complaintId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const addCommentMutation = useMutation({
+    mutationFn: async (commentText: string) => {
+      if (!user) throw new Error("User not authenticated");
+      
+      const { error } = await supabase
+        .from("comments")
+        .insert({
+          complaint_id: complaintId,
+          user_id: user.id,
+          comment_text: commentText,
+        });
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["complaint-comments", complaintId] });
+      setComment("");
+      toast({
+        title: "Comment added",
+        description: "Your comment has been posted successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to add comment. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Error adding comment:", error);
+    },
+  });
+
+  const handleAddComment = () => {
+    if (!comment.trim()) return;
+    addCommentMutation.mutate(comment);
+  };
 
   const getStatusBadge = (status: string) => {
     const statusColors = {
@@ -126,6 +196,72 @@ const ComplaintDetail = ({ complaintId, onBack }: ComplaintDetailProps) => {
           <div className="text-sm text-muted-foreground">
             Submitted on {format(new Date(complaint.created_at), "PPP 'at' p")}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />
+            Comments & Updates
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {(isStaff || isAdmin) && (
+            <div className="space-y-3 p-4 bg-muted/50 rounded-lg border border-border/50">
+              <h4 className="font-semibold text-sm text-foreground">Add Comment</h4>
+              <Textarea
+                placeholder="Provide updates or information about this complaint..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="min-h-[100px]"
+              />
+              <Button 
+                onClick={handleAddComment}
+                disabled={!comment.trim() || addCommentMutation.isPending}
+                className="w-full sm:w-auto"
+              >
+                {addCommentMutation.isPending ? "Posting..." : "Post Comment"}
+              </Button>
+            </div>
+          )}
+
+          {comments && comments.length > 0 ? (
+            <div className="space-y-4">
+              {comments.map((comment) => (
+                <div 
+                  key={comment.id} 
+                  className="p-4 bg-card rounded-lg border border-border/50 shadow-soft hover:shadow-elegant transition-shadow"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="font-medium text-sm text-foreground">
+                      Staff Member
+                    </span>
+                    <span className="text-xs text-muted-foreground">{format(new Date(comment.created_at), "PPP 'at' p")}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {comment.comment_text}
+                  </p>
+                  {comment.attachment_url && (
+                    <a
+                      href={comment.attachment_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-xs text-primary hover:underline mt-2"
+                    >
+                      <Paperclip className="mr-1 h-3 w-3" />
+                      View Attachment
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No comments yet
+            </p>
+          )}
         </CardContent>
       </Card>
 
