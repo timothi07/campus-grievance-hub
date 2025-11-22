@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Users, Building2 } from "lucide-react";
 import AllComplaints from "@/components/admin/AllComplaints";
+import UserManagement from "@/components/admin/UserManagement";
+import DepartmentManagement from "@/components/admin/DepartmentManagement";
 
 export default function AdminDashboard() {
   const { user, signOut } = useAuth();
@@ -48,27 +50,11 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="users" className="animate-slide-up">
-            <Card className="shadow-soft">
-              <CardHeader>
-                <CardTitle className="text-primary">User Management</CardTitle>
-                <CardDescription>Manage users and roles</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Coming soon...</p>
-              </CardContent>
-            </Card>
+            <UserManagement />
           </TabsContent>
 
           <TabsContent value="departments" className="animate-slide-up">
-            <Card className="shadow-soft">
-              <CardHeader>
-                <CardTitle className="text-secondary">Department Management</CardTitle>
-                <CardDescription>Manage departments and categories</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Coming soon...</p>
-              </CardContent>
-            </Card>
+            <DepartmentManagement />
           </TabsContent>
         </Tabs>
       </main>

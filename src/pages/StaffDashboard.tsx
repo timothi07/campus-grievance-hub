@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import StaffComplaintList from "@/components/staff/StaffComplaintList";
 
 export default function StaffDashboard() {
   const { user, signOut } = useAuth();
@@ -20,27 +20,7 @@ export default function StaffDashboard() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Department Complaints</CardTitle>
-              <CardDescription>Manage complaints for your department</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Coming soon...</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>My Profile</CardTitle>
-              <CardDescription>View and update your profile</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Coming soon...</p>
-            </CardContent>
-          </Card>
-        </div>
+        <StaffComplaintList />
       </main>
     </div>
   );
