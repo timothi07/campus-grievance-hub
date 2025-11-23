@@ -22,17 +22,29 @@ const UserManagement = () => {
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ["all-users"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch profiles with departments
+      const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select(`
           *,
-          departments(id, name),
-          user_roles(role)
+          departments(id, name)
         `)
         .order("created_at", { ascending: false });
       
-      if (error) throw error;
-      return data;
+      if (profilesError) throw profilesError;
+      
+      // Fetch all user roles separately
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id, role");
+      
+      if (rolesError) throw rolesError;
+      
+      // Combine the data
+      return profilesData?.map(profile => ({
+        ...profile,
+        user_roles: rolesData?.filter(role => role.user_id === profile.id) || []
+      })) || [];
     },
   });
 
