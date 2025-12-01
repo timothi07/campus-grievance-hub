@@ -7,13 +7,23 @@ import { FileText, Users, Building2 } from "lucide-react";
 import AllComplaints from "@/components/admin/AllComplaints";
 import UserManagement from "@/components/admin/UserManagement";
 import DepartmentManagement from "@/components/admin/DepartmentManagement";
+import OnboardingTutorial from "@/components/onboarding/OnboardingTutorial";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 export default function AdminDashboard() {
   const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState("complaints");
 
+  useKeyboardShortcuts([
+    { key: "c", ctrlKey: true, action: () => setActiveTab("complaints"), description: "View complaints" },
+    { key: "u", ctrlKey: true, action: () => setActiveTab("users"), description: "User management" },
+    { key: "d", ctrlKey: true, action: () => setActiveTab("departments"), description: "Departments" },
+  ]);
+
   return (
     <div className="min-h-screen gradient-hero">
+      <OnboardingTutorial />
+      
       <header className="border-b bg-card/50 backdrop-blur-sm shadow-soft">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
