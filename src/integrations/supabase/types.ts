@@ -188,6 +188,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          assigned_complaints: boolean | null
+          created_at: string | null
+          email_notifications: boolean | null
+          id: string
+          new_comments: boolean | null
+          status_updates: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_complaints?: boolean | null
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          new_comments?: boolean | null
+          status_updates?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_complaints?: boolean | null
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          new_comments?: boolean | null
+          status_updates?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -222,6 +255,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      saved_filters: {
+        Row: {
+          created_at: string | null
+          filter_data: Json
+          id: string
+          is_default: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          filter_data: Json
+          id?: string
+          is_default?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          filter_data?: Json
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_onboarding: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          current_step: number | null
+          id: string
+          skipped: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          current_step?: number | null
+          id?: string
+          skipped?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          current_step?: number | null
+          id?: string
+          skipped?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
