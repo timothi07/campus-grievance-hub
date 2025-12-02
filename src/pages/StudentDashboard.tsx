@@ -9,6 +9,8 @@ import StudentProfile from "@/components/student/StudentProfile";
 import OnboardingTutorial from "@/components/onboarding/OnboardingTutorial";
 import NotificationSettings from "@/components/settings/NotificationSettings";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
 
 const StudentDashboard = () => {
   const { user, signOut } = useAuth();
@@ -31,10 +33,14 @@ const StudentDashboard = () => {
             <h1 className="text-2xl font-bold text-foreground">Student Portal</h1>
             <p className="text-sm text-muted-foreground">Welcome back, {user?.user_metadata?.name}</p>
           </div>
-          <Button variant="outline" onClick={signOut}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LanguageToggle />
+            <Button variant="outline" onClick={signOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
