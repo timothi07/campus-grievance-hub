@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
+import { ComplaintChat } from "@/components/messaging/ComplaintChat";
 
 interface ComplaintDetailProps {
   complaintId: string;
@@ -386,6 +387,8 @@ const ComplaintDetail = ({ complaintId, onBack }: ComplaintDetailProps) => {
           </CardContent>
         </Card>
       )}
+
+      <ComplaintChat complaintId={complaintId} />
     </div>
   );
 };

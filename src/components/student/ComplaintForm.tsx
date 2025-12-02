@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Upload } from "lucide-react";
+import { VoiceInput } from "@/components/shared/VoiceInput";
 
 const complaintSchema = z.object({
   title: z.string().trim().min(5, "Title must be at least 5 characters").max(150),
@@ -138,11 +139,15 @@ const ComplaintForm = ({ onSuccess }: ComplaintFormProps) => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              placeholder="Brief summary of your complaint"
-              {...form.register("title")}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="title"
+                placeholder="Brief summary of your complaint"
+                {...form.register("title")}
+                className="flex-1"
+              />
+              <VoiceInput onTranscript={(text) => form.setValue("title", text)} />
+            </div>
             {form.formState.errors.title && (
               <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
             )}
@@ -183,12 +188,21 @@ const ComplaintForm = ({ onSuccess }: ComplaintFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Provide detailed information about your complaint"
-              rows={6}
-              {...form.register("description")}
-            />
+            <div className="flex gap-2">
+              <Textarea
+                id="description"
+                placeholder="Provide detailed information about your complaint"
+                rows={6}
+                {...form.register("description")}
+                className="flex-1"
+              />
+              <VoiceInput 
+                onTranscript={(text) => {
+                  const current = form.getValues("description");
+                  form.setValue("description", current ? `${current} ${text}` : text);
+                }} 
+              />
+            </div>
             {form.formState.errors.description && (
               <p className="text-sm text-destructive">{form.formState.errors.description.message}</p>
             )}
