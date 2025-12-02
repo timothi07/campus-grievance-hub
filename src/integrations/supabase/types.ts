@@ -188,6 +188,44 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          complaint_id: string
+          content: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          sender_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          complaint_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          sender_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          complaint_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          sender_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_complaint_id_fkey"
+            columns: ["complaint_id"]
+            isOneToOne: false
+            referencedRelation: "complaints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           assigned_complaints: boolean | null
@@ -220,6 +258,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      notification_queue: {
+        Row: {
+          complaint_id: string | null
+          created_at: string | null
+          id: string
+          message: string
+          notification_type: string
+          sent: boolean | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          complaint_id?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          notification_type: string
+          sent?: boolean | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          complaint_id?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          notification_type?: string
+          sent?: boolean | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_queue_complaint_id_fkey"
+            columns: ["complaint_id"]
+            isOneToOne: false
+            referencedRelation: "complaints"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
